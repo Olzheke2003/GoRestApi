@@ -2,6 +2,7 @@ package apiserver
 
 import (
 	"io"
+	"main/internal/app/store"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -12,6 +13,7 @@ type APIserver struct {
 	config *Config
 	logger *logrus.Logger
 	router *mux.Router
+	store *store.Store
 }
 
 func New(config *Config) *APIserver {
@@ -19,6 +21,7 @@ func New(config *Config) *APIserver {
 		config: config,
 		logger: logrus.New(),
 		router: mux.NewRouter(),
+
 	}
 }
 
@@ -28,6 +31,10 @@ func (s *APIserver) Start() error {
 	}
 
 	s.configureRouter()
+
+	if err:= s.configerStore(); err != nil{
+		return err
+	}
 
 	s.logger.Info("starting api server")
 	return http.ListenAndServe(s.config.BindAddr, s.router)
@@ -44,12 +51,18 @@ func (s *APIserver) configureLogger() error {
 	return nil
 }
 
+
+
 func (s *APIserver) configureRouter() {
 	s.router.HandleFunc("/hello", s.handleHello())
 }
 
+func (s *APIserver) configerStore() {
+	s.router.HandleFunc("/hello", s.handleHello())
+}
+
 func (s *APIserver) handleHello() http.HandlerFunc {
-	// Локальные перемнные, типы
+	// Локальные переменные, типы (Выполняться всего один раз)
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Бизнес логика
 		io.WriteString(w, "Hello")
