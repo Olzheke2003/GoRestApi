@@ -1,10 +1,9 @@
 package store
 
-type Config struct{
+type Config struct {
 	DatabaseURL string `toml:database_url`
 }
 
-func NewConfig() *Config{
-	return &Config{
-	}
+func NewConfig() *Config {
+	return &Config{}
 }

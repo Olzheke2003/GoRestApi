@@ -54,7 +54,7 @@ func (s *APIserver) configureRouter() {
 	s.router.HandleFunc("/hello", s.handleHello())
 }
 
-func (s *APIserver) configerStore() {
+func (s *APIserver) configerStore() error {
 	st := store.New(s.config.Store)
 	if err := st.Open(); err != nil {
 		return err
