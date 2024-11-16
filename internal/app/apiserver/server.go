@@ -33,5 +33,6 @@ func (s *APIserver) configureLogger() error {
 }
 
 func (s *APIserver) configureRouter() {
-	s.router.HandleFunc("/hello", tasks.HandleArchiveInformation)
+	// Роут для обработки информации об архиве
+	s.router.HandleFunc("/api/archive/information", tasks.HandleArchiveInformation).Methods("POST")
 }

@@ -13,7 +13,7 @@ func (s *APIserver) Start() error {
 	}
 
 	s.configureRouter()
-
+	fmt.Println("qwe")
 	s.logger.Info("starting api server")
 	err := http.ListenAndServe(s.config.BindAddr, s.router)
 	if err != nil {

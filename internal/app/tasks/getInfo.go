@@ -27,6 +27,7 @@ type ArchiveInfo struct {
 	Files       []FileInfo `json:"files"`
 }
 
+// HandleArchiveInformation обрабатывает POST-запрос с архивом и возвращает информацию о нем
 func HandleArchiveInformation(w http.ResponseWriter, r *http.Request) {
 	// Проверяем метод запроса
 	if r.Method != http.MethodPost {
@@ -87,7 +88,9 @@ func HandleArchiveInformation(w http.ResponseWriter, r *http.Request) {
 
 	// Возвращаем информацию в формате JSON
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(archiveInfo)
+	if err := json.NewEncoder(w).Encode(archiveInfo); err != nil {
+		http.Error(w, fmt.Sprintf("Failed to encode response: %v", err), http.StatusInternalServerError)
+	}
 }
 
 // detectMimeType определяет mime-тип файла в архиве
@@ -104,5 +107,6 @@ func detectMimeType(file *zip.File) string {
 		return "unknown"
 	}
 
-	return mime.TypeByExtension(filepath.Ext(file.Name))
+	// Используем mime-тип на основе расширения файла
+	return mime.TypeByExtension(filepath.Ext(file.Name)) // исправлено здесь
 }
