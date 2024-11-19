@@ -28,7 +28,6 @@ func HandleCreateArchive(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Чтение и парсинг формы
 	err := r.ParseMultipartForm(50 << 20) // 50MB
 	if err != nil {
 		writeErrorResponse(w, http.StatusBadRequest, "Failed to parse form: "+err.Error())
@@ -36,7 +35,6 @@ func HandleCreateArchive(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Проверка наличия файлов
 	files, ok := r.MultipartForm.File["files[]"]
 	if !ok || len(files) == 0 {
 		writeErrorResponse(w, http.StatusBadRequest, "No files provided or invalid key used")
@@ -44,7 +42,6 @@ func HandleCreateArchive(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Создание временного zip файла
 	tempFile, err := os.CreateTemp("", "archive-*.zip")
 	if err != nil {
 		writeErrorResponse(w, http.StatusInternalServerError, "Failed to create temp file: "+err.Error())
@@ -54,15 +51,12 @@ func HandleCreateArchive(w http.ResponseWriter, r *http.Request) {
 	defer os.Remove(tempFile.Name())
 	defer tempFile.Close()
 
-	// Запись файлов в архив
 	zipWriter := zip.NewWriter(tempFile)
 	defer zipWriter.Close()
 
-	// Обработка каждого файла
 	for _, header := range files {
 		contentType := header.Header.Get("Content-Type")
 
-		// Проверка MIME типа
 		if !AllowedMimeTypes[contentType] {
 			errMsg := fmt.Sprintf("File %s has invalid MIME type: %s", header.Filename, contentType)
 			log.Printf("Unsupported MIME type: %s\n", contentType)
@@ -70,7 +64,6 @@ func HandleCreateArchive(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		// Открытие файла
 		file, err := header.Open()
 		if err != nil {
 			writeErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("Error opening file %s: %v", header.Filename, err))
@@ -79,7 +72,6 @@ func HandleCreateArchive(w http.ResponseWriter, r *http.Request) {
 		}
 		defer file.Close()
 
-		// Создание записи в архиве
 		zipFile, err := zipWriter.Create(header.Filename)
 		if err != nil {
 			writeErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("Error creating entry for %s in zip file: %v", header.Filename, err))
@@ -87,7 +79,6 @@ func HandleCreateArchive(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		// Копирование содержимого файла в архив
 		if _, err := io.Copy(zipFile, file); err != nil {
 			writeErrorResponse(w, http.StatusInternalServerError, fmt.Sprintf("Error writing file %s to zip: %v", header.Filename, err))
 			log.Printf("Error writing file %s to zip: %v\n", header.Filename, err)
@@ -95,22 +86,18 @@ func HandleCreateArchive(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Закрытие архива и отправка файла пользователю
 	if err := zipWriter.Close(); err != nil {
 		writeErrorResponse(w, http.StatusInternalServerError, "Failed to close zip writer: "+err.Error())
 		log.Printf("Error closing zip writer: %v\n", err)
 		return
 	}
 
-	// Установка заголовков для скачивания архива
 	w.Header().Set("Content-Type", "application/zip")
 	w.Header().Set("Content-Disposition", "attachment; filename=archive.zip")
 
-	// Отправка файла на клиент
 	http.ServeFile(w, r, tempFile.Name())
 }
 
-// Функция для отправки ошибки в формате JSON
 func writeErrorResponse(w http.ResponseWriter, statusCode int, message string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
