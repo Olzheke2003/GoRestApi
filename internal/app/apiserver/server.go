@@ -15,8 +15,6 @@ func New(config *Config) *APIserver {
 }
 
 func (s *APIserver) configureRouter() {
-	// Роут для обработки информации об архиве
 	s.router.HandleFunc("/api/archive/information", handler.HandleArchiveInformation).Methods("POST")
 	s.router.HandleFunc("/api/archive/createArhive", handler.HandleCreateArchive).Methods("POST")
-	s.router.HandleFunc("/api/mail/file", handler.HandleFileAndEmails).Methods("POST")
 }

@@ -15,9 +15,6 @@ import (
 	model "github.com/Olzheke2003/GoRestApi/internal/app/model"
 )
 
-// FileInfo содержит информацию о файле в архиве
-
-// HandleArchiveInformation обрабатывает POST-запрос с архивом и возвращает информацию о нем
 func HandleArchiveInformation(w http.ResponseWriter, r *http.Request) {
 	// Логирование заголовков запроса
 	log.Println("Received request with headers:")
@@ -27,16 +24,13 @@ func HandleArchiveInformation(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Проверяем метод запроса
 	if r.Method != http.MethodPost {
 		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	// Ограничиваем размер загружаемого файла (например, до 50MB)
 	r.ParseMultipartForm(50 << 20) // 50MB
 
-	// Читаем файл из multipart/form-data
 	file, header, err := r.FormFile("file")
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to read file: %v", err), http.StatusBadRequest)
@@ -45,41 +39,35 @@ func HandleArchiveInformation(w http.ResponseWriter, r *http.Request) {
 	}
 	defer file.Close()
 
-	// Логирование информации о файле
 	log.Printf("Processing file: %s, Size: %d bytes\n", header.Filename, header.Size)
 
-	// Проверяем, является ли файл ZIP-архивом
 	if !isArchive(file) {
 		http.Error(w, "File is not a valid archive", http.StatusBadRequest)
 		log.Println("Uploaded file is not a valid archive")
 		return
 	}
 
-	// Сбросить курсор файла для дальнейшего чтения
 	if _, err := file.Seek(0, io.SeekStart); err != nil {
 		http.Error(w, fmt.Sprintf("Failed to seek file: %v", err), http.StatusInternalServerError)
 		log.Printf("Error seeking file: %v\n", err)
 		return
 	}
 
-	// Сохраняем файл временно на диск
 	tempFile, err := os.CreateTemp("", "uploaded-*.zip")
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to create temp file: %v", err), http.StatusInternalServerError)
 		log.Printf("Error creating temp file: %v\n", err)
 		return
 	}
-	defer os.Remove(tempFile.Name()) // Удаляем файл после обработки
+	defer os.Remove(tempFile.Name())
 	defer tempFile.Close()
 
-	// Копируем содержимое загруженного файла во временный файл
 	if _, err := io.Copy(tempFile, file); err != nil {
 		http.Error(w, fmt.Sprintf("Failed to save file: %v", err), http.StatusInternalServerError)
 		log.Printf("Error saving file: %v\n", err)
 		return
 	}
 
-	// Проверяем, является ли файл ZIP-архивом
 	zipReader, err := zip.OpenReader(tempFile.Name())
 	if err != nil {
 		http.Error(w, "Uploaded file is not a valid ZIP archive", http.StatusBadRequest)
@@ -88,8 +76,6 @@ func HandleArchiveInformation(w http.ResponseWriter, r *http.Request) {
 	}
 	defer zipReader.Close()
 
-	// Собираем информацию об архиве
-	// Создаем переменную для информации об архиве
 	var archiveInfo model.ArchiveInfo
 	archiveInfo.FileName = header.Filename
 	archiveInfo.ArchiveSize = float64(header.Size)
@@ -111,7 +97,6 @@ func HandleArchiveInformation(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("Form data:", r.MultipartForm)
 
-	// Возвращаем информацию в формате JSON
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(archiveInfo); err != nil {
@@ -120,7 +105,6 @@ func HandleArchiveInformation(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// isArchive проверяет, начинается ли файл с магии ZIP
 func isArchive(file io.Reader) bool {
 	buf := make([]byte, 4)
 	_, err := file.Read(buf)
@@ -128,11 +112,9 @@ func isArchive(file io.Reader) bool {
 		return false
 	}
 
-	// Проверка на начало ZIP файла (PK\x03\x04)
 	return strings.HasPrefix(string(buf), "PK\x03\x04")
 }
 
-// detectMimeType определяет mime-тип файла в архиве
 func detectMimeType(file *zip.File) string {
 	reader, err := file.Open()
 	if err != nil {
@@ -146,6 +128,5 @@ func detectMimeType(file *zip.File) string {
 		return "unknown"
 	}
 
-	// Используем mime-тип на основе расширения файла
 	return mime.TypeByExtension(filepath.Ext(file.Name))
 }

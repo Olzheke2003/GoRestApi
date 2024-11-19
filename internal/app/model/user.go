@@ -6,11 +6,10 @@ type FileInfo struct {
 	MimeType string  `json:"mimetype"`
 }
 
-// ArchiveInfo содержит информацию об архиве
 type ArchiveInfo struct {
 	FileName    string     `json:"filename"`
 	ArchiveSize float64    `json:"archive_size"`
 	TotalSize   float64    `json:"total_size"`
 	TotalFiles  int        `json:"total_files"`
 	Files       []FileInfo `json:"files"`
-} //.......
+}

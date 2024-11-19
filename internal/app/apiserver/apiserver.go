@@ -25,7 +25,7 @@ func (s *APIserver) configureLogger() error {
 	return nil
 }
 func (s *APIserver) Start() error {
-	fmt.Println("Server is starting...") // Для отладки
+	fmt.Println("Server is starting...")
 
 	if err := s.configureLogger(); err != nil {
 		return err
@@ -36,7 +36,7 @@ func (s *APIserver) Start() error {
 	s.logger.Info("starting api server")
 	err := http.ListenAndServe(s.config.BindAddr, s.router)
 	if err != nil {
-		fmt.Println("Error starting server:", err) // Печать ошибки, если сервер не запускается
+		fmt.Println("Error starting server:", err)
 	}
 	return err
 }
