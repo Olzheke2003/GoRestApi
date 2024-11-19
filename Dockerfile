@@ -7,18 +7,16 @@ RUN go mod tidy
 
 COPY . .
 
-RUN go build -v ./cmd/apiserver
-RUN ls -l /app
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o apiserver ./cmd/apiserver
 
-FROM alpine:latest
+FROM scratch
 
-RUN apk --no-cache add ca-certificates
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 COPY --from=builder /app/apiserver /usr/local/bin/apiserver
 
 RUN chmod +x /usr/local/bin/apiserver
 
-# Открываем порт
 EXPOSE 8080
 
-CMD ["apiserver"]
+CMD ["/usr/local/bin/apiserver"]
