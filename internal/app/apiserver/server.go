@@ -17,4 +17,5 @@ func New(config *Config) *APIserver {
 func (s *APIserver) configureRouter() {
 	s.router.HandleFunc("/api/archive/information", handler.HandleArchiveInformation).Methods("POST")
 	s.router.HandleFunc("/api/archive/files", handler.HandleCreateArchive).Methods("POST")
+	s.router.HandleFunc("/hello", handler.Hello).Methods("GET")
 }
