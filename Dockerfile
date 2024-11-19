@@ -15,8 +15,6 @@ COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 COPY --from=builder /app/apiserver /usr/local/bin/apiserver
 
-RUN chmod +x /usr/local/bin/apiserver
-
 EXPOSE 8080
 
 CMD ["/usr/local/bin/apiserver"]
