@@ -3,8 +3,27 @@ package apiserver
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/gorilla/mux"
+	"github.com/sirupsen/logrus"
 )
 
+type APIserver struct {
+	config *Config
+	logger *logrus.Logger
+	router *mux.Router
+}
+
+func (s *APIserver) configureLogger() error {
+	level, err := logrus.ParseLevel(s.config.LogLevel)
+	if err != nil {
+		return err
+	}
+
+	s.logger.SetLevel(level)
+
+	return nil
+}
 func (s *APIserver) Start() error {
 	fmt.Println("Server is starting...") // Для отладки
 

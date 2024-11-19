@@ -3,7 +3,8 @@ package main
 import (
 	"flag"
 	"log"
-	"main/internal/app/apiserver"
+
+	"github.com/Olzheke2003/GoRestApi/internal/app/apiserver"
 
 	"github.com/BurntSushi/toml"
 )
