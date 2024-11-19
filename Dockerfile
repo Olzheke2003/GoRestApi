@@ -7,13 +7,13 @@ RUN go mod tidy
 
 COPY . .
 
-RUN go build -v ./apiserver  # Путь для компиляции
+RUN go build -v ./apiserver  
 
 FROM alpine:latest
 
 RUN apk --no-cache add ca-certificates
 
-COPY --from=builder /app/apiserver /usr/local/bin/apiserver  # Копируем в /usr/local/bin
+COPY --from=builder /app/apiserver /usr/local/bin/apiserver
 
 EXPOSE 8080
 
