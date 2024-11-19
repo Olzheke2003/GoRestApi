@@ -7,7 +7,7 @@ RUN go mod tidy
 
 COPY . .
 
-RUN go build -o apiserver ./cmd/apiserver
+RUN go build -v ./cmd/apiserver
 
 FROM alpine:latest
 
