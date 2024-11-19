@@ -15,6 +15,10 @@ COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 COPY --from=builder /app/apiserver /usr/local/bin/apiserver
 
+COPY --from=builder /app/configs /configs
+
 EXPOSE 8080
+
+WORKDIR /
 
 CMD ["/usr/local/bin/apiserver"]
